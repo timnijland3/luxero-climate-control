@@ -82,6 +82,62 @@ class TestPresenceDetection:
         assert room["target_temp"] == 25.0  # override wins
 
     @pytest.mark.asyncio
+    async def test_presence_clears_override_when_enabled(self, hass, mock_config_entry):
+        """presence_clears_override=True: presence-away suppresses active override (#306)."""
+        room_with_override = {
+            **SAMPLE_ROOM,
+            "override_temp": 25.0,
+            "override_until": time.time() + 3600,
+            "override_type": "boost",
+        }
+        store = _make_store_mock({"living_room_abc12345": room_with_override})
+        store.get_settings.return_value = {
+            "presence_enabled": True,
+            "presence_persons": ["person.kevin"],
+            "presence_clears_override": True,
+        }
+        hass.data = {"roommind": {"store": store}}
+        hass.states.get = MagicMock(side_effect=_presence_states_get())
+        hass.services.async_call = AsyncMock()
+
+        coordinator = _create_coordinator(hass, mock_config_entry)
+        data = await coordinator._async_update_data()
+
+        room = data["rooms"]["living_room_abc12345"]
+        assert room["target_temp"] == 17.0  # eco_temp, override suppressed
+        assert room["override_active"] is True
+        assert room["override_suppressed"] is True
+        assert room["presence_away"] is True
+
+    @pytest.mark.asyncio
+    async def test_presence_clears_override_respects_ignore_presence(self, hass, mock_config_entry):
+        """ignore_presence=True per room: override stays in effect even with setting on."""
+        room_with_override = {
+            **SAMPLE_ROOM,
+            "override_temp": 25.0,
+            "override_until": time.time() + 3600,
+            "override_type": "boost",
+            "ignore_presence": True,
+        }
+        store = _make_store_mock({"living_room_abc12345": room_with_override})
+        store.get_settings.return_value = {
+            "presence_enabled": True,
+            "presence_persons": ["person.kevin"],
+            "presence_clears_override": True,
+        }
+        hass.data = {"roommind": {"store": store}}
+        hass.states.get = MagicMock(side_effect=_presence_states_get())
+        hass.services.async_call = AsyncMock()
+
+        coordinator = _create_coordinator(hass, mock_config_entry)
+        data = await coordinator._async_update_data()
+
+        room = data["rooms"]["living_room_abc12345"]
+        assert room["target_temp"] == 25.0  # override still wins
+        assert room["override_active"] is True
+        assert room["override_suppressed"] is False
+
+    @pytest.mark.asyncio
     async def test_vacation_beats_presence(self, hass, mock_config_entry):
         """Vacation takes priority over presence."""
         store = _make_store_mock({"living_room_abc12345": SAMPLE_ROOM})

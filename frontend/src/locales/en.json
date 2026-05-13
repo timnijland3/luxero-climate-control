@@ -444,6 +444,8 @@
   "presence.away_action_label": "Action when nobody is home",
   "presence.away_action_eco": "Use eco temperature",
   "presence.away_action_off": "Turn off devices",
+  "presence.clears_override_label": "Absence stops override",
+  "presence.clears_override_hint": "When nobody is home, manual overrides are paused and the room follows the away action. When someone returns, the override resumes until it expires.",
   "card.presence_away": "Away",
 
   "valve_protection.title": "Valve Protection",

@@ -880,6 +880,48 @@ class TestResolveTargetsAtTime:
         )
         assert result == TargetTemps(heat=25.0, cool=25.0)
 
+    def test_presence_clears_override_suppresses_override(self):
+        """presence_clears_override=True + presence_away skips override branch (#306)."""
+        from custom_components.roommind.utils.schedule_utils import resolve_targets_at_time
+
+        now = time.time()
+        result = resolve_targets_at_time(
+            ts=now,
+            schedule_blocks=None,
+            override_until=now + 3600,
+            override_temp=25.0,
+            vacation_until=None,
+            vacation_temp=None,
+            comfort_heat=21.0,
+            comfort_cool=24.0,
+            eco_heat=17.0,
+            eco_cool=27.0,
+            presence_away=True,
+            presence_clears_override=True,
+        )
+        assert result == TargetTemps(heat=17.0, cool=27.0)
+
+    def test_presence_clears_override_disabled_keeps_override(self):
+        """presence_clears_override=False keeps override active even when away."""
+        from custom_components.roommind.utils.schedule_utils import resolve_targets_at_time
+
+        now = time.time()
+        result = resolve_targets_at_time(
+            ts=now,
+            schedule_blocks=None,
+            override_until=now + 3600,
+            override_temp=25.0,
+            vacation_until=None,
+            vacation_temp=None,
+            comfort_heat=21.0,
+            comfort_cool=24.0,
+            eco_heat=17.0,
+            eco_cool=27.0,
+            presence_away=True,
+            presence_clears_override=False,
+        )
+        assert result == TargetTemps(heat=25.0, cool=25.0)
+
     def test_schedule_block_with_temperature_creates_single_point(self):
         """Schedule block with custom temperature creates TargetTemps(heat=t, cool=t)."""
         from custom_components.roommind.utils.schedule_utils import resolve_targets_at_time

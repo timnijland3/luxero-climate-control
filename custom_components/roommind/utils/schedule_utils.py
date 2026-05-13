@@ -104,15 +104,17 @@ def resolve_targets_at_time(
     block_temp_converter: Callable[[float], float] | None = None,
     presence_away_action: str = "eco",
     schedule_off_action: str = "eco",
+    presence_clears_override: bool = False,
 ) -> TargetTemps:
     """Resolve dual heat/cool target temps at a specific timestamp.
 
     Returns TargetTemps(heat, cool). None values mean "force off".
     """
-    # 1. Override — single-point target
+    # 1. Override — single-point target (skipped when presence-away suppresses it)
     if override_temp is not None and (override_until is None or ts < override_until):
-        t = float(override_temp)
-        return TargetTemps(heat=t, cool=t)
+        if not (presence_away and presence_clears_override):
+            t = float(override_temp)
+            return TargetTemps(heat=t, cool=t)
     # 2. Vacation — heat setback, cooling stays at eco_cool
     if vacation_until is not None and ts < vacation_until and vacation_temp is not None:
         t = float(vacation_temp)
@@ -261,6 +263,7 @@ def make_target_resolver(
     vacation_temp = settings.get("vacation_temp")
     presence_away_action = settings.get("presence_away_action", "eco")
     schedule_off_action = settings.get("schedule_off_action", "eco")
+    presence_clears_override = bool(settings.get("presence_clears_override", False))
 
     converter: Callable[[float], float] | None = None
     if hass is not None:
@@ -285,6 +288,7 @@ def make_target_resolver(
             block_temp_converter=converter,
             presence_away_action=presence_away_action,
             schedule_off_action=schedule_off_action,
+            presence_clears_override=presence_clears_override,
         )
         if targets.heat is None and targets.cool is None:
             return targets

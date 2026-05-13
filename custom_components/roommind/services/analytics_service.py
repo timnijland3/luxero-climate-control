@@ -133,6 +133,7 @@ async def _compute_target_forecast(
             block_temp_converter=converter,
             presence_away_action=settings.get("presence_away_action", "eco"),
             schedule_off_action=settings.get("schedule_off_action", "eco"),
+            presence_clears_override=bool(settings.get("presence_clears_override", False)),
         )
         heat_target = targets.heat
         cool_target = targets.cool

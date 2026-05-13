@@ -23,6 +23,7 @@ from .const import (
     DOMAIN,
     OVERRIDE_TYPES,
     build_override_live,
+    is_override_suppressed,
 )
 from .services.analytics_service import (
     _compute_target_forecast,  # noqa: F401 - re-exported for tests
@@ -123,6 +124,7 @@ _SETTINGS_SAVE_FIELDS = (
     "presence_enabled",
     "presence_persons",
     "presence_away_action",
+    "presence_clears_override",
     "schedule_off_action",
     "valve_protection_enabled",
     "valve_protection_interval_days",
@@ -238,7 +240,10 @@ async def websocket_list_rooms(
             "heating_power": live.get("heating_power", 0),
             "device_setpoint": live.get("device_setpoint"),
             "window_open": live.get("window_open", False),
-            **build_override_live(room_config),
+            **build_override_live(
+                room_config,
+                suppressed=is_override_suppressed(room_config, settings, live.get("presence_away", False)),
+            ),
             "active_schedule_index": live.get("active_schedule_index", -1),
             "confidence": live.get("confidence"),
             "mpc_active": live.get("mpc_active", False),
@@ -278,6 +283,7 @@ async def websocket_list_rooms(
             "presence_enabled": settings.get("presence_enabled", False),
             "presence_persons": settings.get("presence_persons", []),
             "presence_away_action": settings.get("presence_away_action", "eco"),
+            "presence_clears_override": settings.get("presence_clears_override", False),
             "schedule_off_action": settings.get("schedule_off_action", "eco"),
             "anyone_home": _compute_anyone_home(hass, settings),
             "valve_protection_enabled": settings.get("valve_protection_enabled", False),
@@ -591,6 +597,7 @@ async def websocket_get_settings(
         vol.Optional("presence_enabled"): bool,
         vol.Optional("presence_persons"): [str],
         vol.Optional("presence_away_action"): vol.In(["eco", "off"]),
+        vol.Optional("presence_clears_override"): bool,
         vol.Optional("schedule_off_action"): vol.In(["eco", "off"]),
         vol.Optional("valve_protection_enabled"): bool,
         vol.Optional("valve_protection_interval_days"): vol.All(vol.Coerce(int), vol.Range(min=1, max=90)),

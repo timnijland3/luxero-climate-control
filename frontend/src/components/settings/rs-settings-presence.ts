@@ -14,6 +14,7 @@ export class RsSettingsPresence extends RsSettingsBase {
   @property({ type: Boolean }) public presenceEnabled = false;
   @property({ type: Array }) public presencePersons: string[] = [];
   @property({ type: String }) public presenceAwayAction: "eco" | "off" = "eco";
+  @property({ type: Boolean }) public presenceClearsOverride = false;
 
   render() {
     const l = this.hass.language;
@@ -96,6 +97,17 @@ export class RsSettingsPresence extends RsSettingsBase {
                 <ha-list-item value="eco">${localize("presence.away_action_eco", l)}</ha-list-item>
                 <ha-list-item value="off">${localize("presence.away_action_off", l)}</ha-list-item>
               </ha-select>
+              <div class="toggle-row">
+                <div class="toggle-text">
+                  <span class="toggle-label">${localize("presence.clears_override_label", l)}</span>
+                  <span class="toggle-hint">${localize("presence.clears_override_hint", l)}</span>
+                </div>
+                <ha-switch
+                  .checked=${this.presenceClearsOverride}
+                  @change=${(e: Event) =>
+                    this._fire("presenceClearsOverride", (e.target as HTMLInputElement).checked)}
+                ></ha-switch>
+              </div>
             </div>
           `
         : nothing}

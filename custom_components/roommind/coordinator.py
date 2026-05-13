@@ -41,6 +41,7 @@ from .const import (
     TargetTemps,
     build_override_live,
     is_override_active,
+    is_override_suppressed,
     make_roommind_context,
 )
 from .control.mpc_controller import (
@@ -513,6 +514,7 @@ class RoomMindCoordinator(DataUpdateCoordinator):
                 "override_type": None,
                 "override_temp": None,
                 "override_until": None,
+                "override_suppressed": False,
                 "active_schedule_index": -1,
                 "confidence": None,
                 "mpc_active": False,
@@ -879,6 +881,7 @@ class RoomMindCoordinator(DataUpdateCoordinator):
         return self._build_room_state_dict(
             area_id=area_id,
             room=room,
+            settings=settings,
             current_temp=current_temp,
             current_temp_raw=current_temp_raw,
             current_humidity=current_humidity,
@@ -1088,6 +1091,7 @@ class RoomMindCoordinator(DataUpdateCoordinator):
         *,
         area_id: str,
         room: dict,
+        settings: dict,
         current_temp: float | None,
         current_temp_raw: float | None,
         current_humidity: float | None,
@@ -1154,7 +1158,10 @@ class RoomMindCoordinator(DataUpdateCoordinator):
                 all_direct=_all_direct,
             ),
             "window_open": window_open,
-            **build_override_live(room),
+            **build_override_live(
+                room,
+                suppressed=is_override_suppressed(room, settings, presence_away),
+            ),
             "active_schedule_index": self._get_active_schedule_index(room),
             "confidence": self._model_manager.get_confidence(area_id),
             "mpc_active": mpc_active,
@@ -1375,16 +1382,23 @@ class RoomMindCoordinator(DataUpdateCoordinator):
 
         Priority: override > vacation > presence away > schedule block temp > comfort/eco.
         Returns TargetTemps(heat, cool). None values mean "force off".
+
+        When ``presence_clears_override`` is enabled in settings and the room is
+        currently presence-away (and not ``ignore_presence``), the override is
+        held in the store but skipped here so the room follows the presence-away
+        branch instead.
         """
         from .utils.schedule_utils import find_active_block
 
-        # 1. Override — single-point target
+        # 1. Override — single-point target (suppressed when presence-away clears it)
         override_temp = room.get("override_temp")
         override_until = room.get("override_until")
         if override_temp is not None:
             if override_until is None or time.time() < override_until:
-                t = float(override_temp)
-                return TargetTemps(heat=t, cool=t)
+                presence_away_now = not room.get("ignore_presence", False) and self._is_presence_away(room, settings)
+                if not (presence_away_now and bool(settings.get("presence_clears_override", False))):
+                    t = float(override_temp)
+                    return TargetTemps(heat=t, cool=t)
             else:
                 # Timed override has expired — auto-clear
                 area_id = room.get("area_id", "unknown")

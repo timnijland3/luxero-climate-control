@@ -51,6 +51,7 @@ export class RsSettings extends LitElement {
   @state() private _presenceEnabled = false;
   @state() private _presencePersons: string[] = [];
   @state() private _presenceAwayAction: "eco" | "off" = "eco";
+  @state() private _presenceClearsOverride = false;
   @state() private _scheduleOffAction: "eco" | "off" = "eco";
   @state() private _valveProtectionEnabled = false;
   @state() private _valveProtectionInterval = 7;
@@ -108,6 +109,7 @@ export class RsSettings extends LitElement {
       this._presenceEnabled = s.presence_enabled ?? false;
       this._presencePersons = s.presence_persons ?? [];
       this._presenceAwayAction = s.presence_away_action ?? "eco";
+      this._presenceClearsOverride = s.presence_clears_override ?? false;
       this._scheduleOffAction = s.schedule_off_action ?? "eco";
       this._valveProtectionEnabled = s.valve_protection_enabled ?? false;
       this._valveProtectionInterval = s.valve_protection_interval_days ?? 7;
@@ -193,6 +195,7 @@ export class RsSettings extends LitElement {
           .presenceEnabled=${this._presenceEnabled}
           .presencePersons=${this._presencePersons}
           .presenceAwayAction=${this._presenceAwayAction}
+          .presenceClearsOverride=${this._presenceClearsOverride}
           @setting-changed=${this._onSettingChanged}
         ></rs-settings-presence>
       </rs-settings-panel>
@@ -348,6 +351,7 @@ export class RsSettings extends LitElement {
         presence_enabled: this._presenceEnabled,
         presence_persons: this._presencePersons.filter((p) => p),
         presence_away_action: this._presenceAwayAction,
+        presence_clears_override: this._presenceClearsOverride,
         schedule_off_action: this._scheduleOffAction,
         valve_protection_enabled: this._valveProtectionEnabled,
         valve_protection_interval_days: this._valveProtectionInterval,

@@ -444,6 +444,8 @@
   "presence.away_action_label": "Aktion wenn niemand zuhause",
   "presence.away_action_eco": "Eco-Temperatur verwenden",
   "presence.away_action_off": "Geräte ausschalten",
+  "presence.clears_override_label": "Abwesenheit beendet Override",
+  "presence.clears_override_hint": "Sobald niemand zuhause ist, wird ein manueller Override pausiert und der Raum folgt der Abwesenheits-Aktion. Kommt jemand zurück, läuft der Override weiter, bis er abläuft.",
   "card.presence_away": "Abwesend",
 
   "valve_protection.title": "Ventilschutz",

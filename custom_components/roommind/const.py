@@ -189,8 +189,23 @@ def is_override_active(room: dict) -> bool:
     return override_until is None or time.time() < override_until
 
 
-def build_override_live(room: dict) -> dict:
-    """Build override fields for live data from a room config dict."""
+def is_override_suppressed(room: dict, settings: dict, presence_away: bool) -> bool:
+    """Return True when an active override should be ignored due to presence."""
+    if not presence_away:
+        return False
+    if room.get("ignore_presence", False):
+        return False
+    return bool(settings.get("presence_clears_override", False))
+
+
+def build_override_live(room: dict, suppressed: bool = False) -> dict:
+    """Build override fields for live data from a room config dict.
+
+    When *suppressed* is True the override is held in the store but currently
+    has no effect (e.g. presence-away with presence_clears_override enabled).
+    Live data still reports the underlying intent so the UI can render a
+    "paused" indicator.
+    """
     active = is_override_active(room)
     override_temp = room.get("override_temp")
     override_until = room.get("override_until")
@@ -199,4 +214,5 @@ def build_override_live(room: dict) -> dict:
         "override_type": room.get("override_type") if active else None,
         "override_temp": override_temp if active else None,
         "override_until": override_until if active else None,
+        "override_suppressed": active and suppressed,
     }

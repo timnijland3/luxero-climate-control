@@ -36,6 +36,7 @@ export interface RoomLiveData {
   override_type: OverrideType | null;
   override_temp: number | null;
   override_until: number | null;
+  override_suppressed: boolean;
   active_schedule_index: number;
   window_open: boolean;
   confidence: number | null;
@@ -154,6 +155,7 @@ export interface GlobalSettings {
   presence_enabled?: boolean;
   presence_persons?: string[];
   presence_away_action?: "eco" | "off";
+  presence_clears_override?: boolean;
   schedule_off_action?: "eco" | "off";
   valve_protection_enabled?: boolean;
   valve_protection_interval_days?: number;
