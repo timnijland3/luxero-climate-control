@@ -69,6 +69,12 @@ HEATING_BOOST_TARGET = 30  # Fallback TRV heating boost (used when entity max_te
 AC_HEATING_BOOST_TARGET = 30  # Fallback AC heating boost (used when entity max_temp unavailable)
 AC_COOLING_BOOST_TARGET = 16  # Fallback AC cooling boost (used when entity min_temp unavailable)
 MIN_POWER_FRACTION = 0.15  # Minimum non-zero power fraction (prevents TRV dead zone)
+DEFAULT_COMFORT_WEIGHT = 70  # Default comfort_weight slider value
+APPROACH_RATE_MIN = 0.2  # Gentlest gap fraction closed per block, at comfort_weight=0 (full efficiency)
+AC_BOOST_DELTA_MIN = 3.0  # Tightest AC setpoint cap (°C above/below target) at comfort_weight=0
+AC_BOOST_DELTA_MAX = 50.0  # Comfort-end AC cap (°C); finite value above any real device range so the cap never binds (inf would break the linear slider interpolation)
+PROPORTIONAL_DEADBAND_C = 0.5  # Minimum proportional setpoint change (°C) to resend, in the gentle regime
+PROPORTIONAL_DEADBAND_NEAR_TARGET_C = 0.2  # Finer proportional deadband (°C) within 1°C of target
 
 # Update interval in seconds
 UPDATE_INTERVAL = 30
