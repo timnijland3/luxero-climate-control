@@ -167,15 +167,15 @@ def _validate_no_own_entities(config: dict, own_prefix: str) -> str | None:
     for device in config.get("devices", []):
         eid = device.get("entity_id", "")
         if eid.split(".", 1)[-1].startswith(own_prefix):
-            return f"Cannot assign RoomMind's own entity '{eid}' to a room"
+            return f"Cannot assign Luxero Climate's own entity '{eid}' to a room"
     for fan in config.get("fans", []):
         eid = fan.get("entity_id", "")
         if eid.split(".", 1)[-1].startswith(own_prefix):
-            return f"Cannot assign RoomMind's own entity '{eid}' to a room"
+            return f"Cannot assign Luxero Climate's own entity '{eid}' to a room"
     for field in ("temperature_sensor", "humidity_sensor", "quiet_schedule_entity"):
         eid = config.get(field, "")
         if eid and eid.split(".", 1)[-1].startswith(own_prefix):
-            return f"Cannot assign RoomMind's own entity '{eid}' to a room"
+            return f"Cannot assign Luxero Climate's own entity '{eid}' to a room"
     return None
 
 

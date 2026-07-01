@@ -178,7 +178,7 @@ async def _send_idle_setpoint(
     ):
         if entity_id not in _setpoint_override_warned:
             _LOGGER.warning(
-                "Area '%s': device '%s' setpoint is %.1f but RoomMind previously sent %.1f — "
+                "Area '%s': device '%s' setpoint is %.1f but Luxero Climate previously sent %.1f — "
                 "an external controller may be overriding the setpoint. "
                 "Check the device's own schedule/minimum temperature settings",
                 area_id,
