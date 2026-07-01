@@ -1,19 +1,19 @@
 # Control And Device Guide
 
-This page explains RoomMind's control settings and related device options.
+This page explains Luxero Climate's control settings and related device options.
 
 ## What Priority Does
 
 In `Settings -> Control -> Priority`, the slider balances comfort against runtime/energy use for MPC.
 
-- Toward `Comfort`: RoomMind reacts earlier and works harder to stay close to the target temperature.
-- Toward `Efficiency`: RoomMind allows more drift around the target to reduce heating/cooling runtime.
+- Toward `Comfort`: Luxero Climate reacts earlier and works harder to stay close to the target temperature.
+- Toward `Efficiency`: Luxero Climate allows more drift around the target to reduce heating/cooling runtime.
 
 This setting does **not** change your schedule targets, overrides, comfort temperature, or eco temperature. It only changes how aggressively MPC tries to reach and hold those targets.
 
 ## Thermostat vs Climate Device
 
-Both options are Home Assistant `climate.*` entities, but RoomMind treats them differently:
+Both options are Home Assistant `climate.*` entities, but Luxero Climate treats them differently:
 
 - `Thermostat`: a radiator thermostat / TRV style device.
 - `Climate Device`: an AC, heat pump, or other climate entity used for cooling or forced-air heating.
@@ -27,8 +27,8 @@ In practice:
 
 An external room temperature sensor is the key split:
 
-- `Full Control`: RoomMind uses the external sensor as the room truth and can actively shape device output.
-- `Managed`: without an external room sensor, RoomMind sends target temperatures but the device mostly regulates itself using its own internal sensor.
+- `Full Control`: Luxero Climate uses the external sensor as the room truth and can actively shape device output.
+- `Managed`: without an external room sensor, Luxero Climate sends target temperatures but the device mostly regulates itself using its own internal sensor.
 
 This matters for the options below.
 
@@ -38,13 +38,13 @@ This matters for the options below.
 
 ### Proportional
 
-RoomMind calculates the required heating power, then sends a boosted device setpoint to achieve roughly that output.
+Luxero Climate calculates the required heating power, then sends a boosted device setpoint to achieve roughly that output.
 
 Example:
 
 - room target is `21°C`
 - more heat is needed
-- RoomMind may send `26-28°C` to the TRV to force the valve open harder
+- Luxero Climate may send `26-28°C` to the TRV to force the valve open harder
 
 Best for:
 
@@ -53,7 +53,7 @@ Best for:
 
 ### Direct
 
-RoomMind sends the real target temperature and lets the device regulate itself.
+Luxero Climate sends the real target temperature and lets the device regulate itself.
 
 Best for:
 
@@ -67,11 +67,11 @@ Best for:
 
 ### Turn off
 
-RoomMind turns the device off, or falls back to the device's minimum/off-like behavior if true off is not supported.
+Luxero Climate turns the device off, or falls back to the device's minimum/off-like behavior if true off is not supported.
 
 ### Fan only
 
-RoomMind keeps the device running in fan mode without active heating/cooling.
+Luxero Climate keeps the device running in fan mode without active heating/cooling.
 
 Useful when you want:
 
@@ -80,7 +80,7 @@ Useful when you want:
 
 ### Setback
 
-RoomMind keeps the current HVAC mode active, but moves the target away from the room target:
+Luxero Climate keeps the current HVAC mode active, but moves the target away from the room target:
 
 - heating setback = `heat target - 2°C`
 - cooling setback = `cool target + 2°C`
@@ -98,11 +98,11 @@ Important:
 
 ### Turn off
 
-RoomMind sends the TRV to its `off` state.
+Luxero Climate sends the TRV to its `off` state.
 
 ### Low
 
-RoomMind keeps the TRV in its current heating mode but lowers the setpoint to the device's minimum temperature.
+Luxero Climate keeps the TRV in its current heating mode but lowers the setpoint to the device's minimum temperature.
 
 Useful for battery-powered Zigbee TRVs that enter deep sleep when set to `off` and then stop reacting to commands. `Low` keeps the valve responsive while effectively stopping heating.
 
@@ -114,7 +114,7 @@ Useful for battery-powered Zigbee TRVs that enter deep sleep when set to `off` a
 - at least one `Climate Device` / AC
 - an external temperature sensor
 
-In that case RoomMind can decide which source should heat:
+In that case Luxero Climate can decide which source should heat:
 
 - TRV / boiler side
 - AC / heat pump side

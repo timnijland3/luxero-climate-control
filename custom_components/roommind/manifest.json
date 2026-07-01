@@ -1,6 +1,6 @@
 {
   "domain": "roommind",
-  "name": "RoomMind",
+  "name": "Luxero Climate",
   "codeowners": ["@snazzybean"],
   "config_flow": true,
   "dependencies": ["http", "frontend"],

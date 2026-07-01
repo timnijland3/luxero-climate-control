@@ -2,12 +2,12 @@
   "config": {
     "step": {
       "user": {
-        "title": "RoomMind",
-        "description": "Set up RoomMind to manage room climate. Rooms are configured in the RoomMind panel after setup."
+        "title": "Luxero Climate",
+        "description": "Set up Luxero Climate to manage room climate. Rooms are configured in the Luxero Climate panel after setup."
       }
     },
     "abort": {
-      "already_configured": "RoomMind is already configured."
+      "already_configured": "Luxero Climate is already configured."
     }
   },
   "issues": {
@@ -17,7 +17,7 @@
         "step": {
           "confirm_restart": {
             "title": "Restart Home Assistant?",
-            "description": "RoomMind {version} has been installed but Home Assistant is still running an older version. Restart to complete the update."
+            "description": "Luxero Climate {version} has been installed but Home Assistant is still running an older version. Restart to complete the update."
           }
         }
       }

@@ -50,6 +50,8 @@ def _migrate_room(room: dict) -> dict:
     _migrate_room_temps(room)
     migrate_heat_pump_devices(room.get("devices", []))
     ensure_room_has_devices(room)
+    room.setdefault("fans", [])
+    room.setdefault("quiet_schedule_entity", "")
     return room
 
 
@@ -244,6 +246,8 @@ class RoomMindStore:
             ),
             "heat_source_ac_min_outdoor": config.get("heat_source_ac_min_outdoor", DEFAULT_HEAT_SOURCE_AC_MIN_OUTDOOR),
             "climate_control_enabled": config.get("climate_control_enabled", True),
+            "fans": config.get("fans", []),
+            "quiet_schedule_entity": config.get("quiet_schedule_entity", ""),
         }
         # Directional device sync for new rooms (truthiness check, not just presence)
         if "devices" in config and config["devices"]:

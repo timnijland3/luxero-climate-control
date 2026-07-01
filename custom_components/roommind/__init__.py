@@ -145,7 +145,7 @@ async def _async_check_version_mismatch(hass: HomeAssistant) -> None:
             translation_placeholders={"version": disk_version},
         )
         _LOGGER.warning(
-            "RoomMind on disk is %s but running %s – restart required",
+            "Luxero Climate on disk is %s but running %s – restart required",
             disk_version,
             VERSION,
         )
@@ -161,7 +161,7 @@ async def _async_register_panel(hass: HomeAssistant) -> None:
     panel_js = Path(__file__).parent / "frontend" / "roommind-panel.js"
     if not panel_js.exists():
         _LOGGER.warning(
-            "RoomMind panel JS not found at %s – sidebar panel not registered",
+            "Luxero Climate panel JS not found at %s – sidebar panel not registered",
             panel_js,
         )
         return
@@ -171,13 +171,13 @@ async def _async_register_panel(hass: HomeAssistant) -> None:
             [StaticPathConfig("/roommind/roommind-panel.js", str(panel_js), False)]
         )
     except RuntimeError:
-        _LOGGER.debug("RoomMind static path already registered")
+        _LOGGER.debug("Luxero Climate static path already registered")
 
     try:
         async_register_built_in_panel(
             hass,
             component_name="custom",
-            sidebar_title="RoomMind",
+            sidebar_title="Luxero Climate",
             sidebar_icon="mdi:home-thermometer",
             frontend_url_path="roommind",
             config={
@@ -190,7 +190,7 @@ async def _async_register_panel(hass: HomeAssistant) -> None:
             },
         )
     except ValueError:
-        _LOGGER.debug("RoomMind panel already registered")
+        _LOGGER.debug("Luxero Climate panel already registered")
 
     hass.data[DOMAIN]["panel_registered"] = True
-    _LOGGER.info("RoomMind panel registered in sidebar")
+    _LOGGER.info("Luxero Climate panel registered in sidebar")

@@ -104,6 +104,8 @@ _ROOM_SAVE_FIELDS = (
     "heat_source_ac_min_outdoor",
     "valve_protection_exclude",
     "climate_control_enabled",
+    "fans",
+    "quiet_schedule_entity",
 )
 
 _SETTINGS_SAVE_FIELDS = (
@@ -161,12 +163,16 @@ def _validate_no_own_entities(config: dict, own_prefix: str) -> str | None:
     for field in ("thermostats", "acs", "window_sensors", "covers", "occupancy_sensors"):
         for eid in config.get(field, []):
             if eid.split(".", 1)[-1].startswith(own_prefix):
-                return f"Cannot assign RoomMind's own entity '{eid}' to a room"
+                return f"Cannot assign Luxero Climate's own entity '{eid}' to a room"
     for device in config.get("devices", []):
         eid = device.get("entity_id", "")
         if eid.split(".", 1)[-1].startswith(own_prefix):
             return f"Cannot assign RoomMind's own entity '{eid}' to a room"
-    for field in ("temperature_sensor", "humidity_sensor"):
+    for fan in config.get("fans", []):
+        eid = fan.get("entity_id", "")
+        if eid.split(".", 1)[-1].startswith(own_prefix):
+            return f"Cannot assign RoomMind's own entity '{eid}' to a room"
+    for field in ("temperature_sensor", "humidity_sensor", "quiet_schedule_entity"):
         eid = config.get(field, "")
         if eid and eid.split(".", 1)[-1].startswith(own_prefix):
             return f"Cannot assign RoomMind's own entity '{eid}' to a room"
@@ -178,6 +184,14 @@ def _validate_no_duplicate_devices(config: dict) -> str | None:
     device_eids = [d["entity_id"] for d in config.get("devices", [])]
     if len(device_eids) != len(set(device_eids)):
         return "devices[] contains duplicate entity_ids"
+    return None
+
+
+def _validate_no_duplicate_fans(config: dict) -> str | None:
+    """Check for duplicate entity_ids in fans[]. Returns error message or None."""
+    fan_eids = [f["entity_id"] for f in config.get("fans", [])]
+    if len(fan_eids) != len(set(fan_eids)):
+        return "fans[] contains duplicate entity_ids"
     return None
 
 
@@ -363,6 +377,13 @@ async def websocket_list_rooms(
         vol.Optional("heat_source_outdoor_threshold"): vol.All(vol.Coerce(float), vol.Range(min=-20, max=25)),
         vol.Optional("heat_source_ac_min_outdoor"): vol.All(vol.Coerce(float), vol.Range(min=-30, max=5)),
         vol.Optional("climate_control_enabled"): bool,
+        vol.Optional("fans"): [
+            {
+                vol.Required("entity_id"): vol.Match(r"^fan\..+"),
+                vol.Optional("quiet_max_percent", default=30): vol.All(vol.Coerce(int), vol.Range(min=0, max=100)),
+            }
+        ],
+        vol.Optional("quiet_schedule_entity"): vol.Any("", vol.Match(r"^schedule\..+")),
     }
 )
 @websocket_api.async_response
@@ -389,6 +410,11 @@ async def websocket_save_room(
         return
     # Reject duplicate entity_ids in devices[]
     err = _validate_no_duplicate_devices(config)
+    if err:
+        connection.send_error(msg["id"], "duplicate_entity", err)
+        return
+    # Reject duplicate entity_ids in fans[]
+    err = _validate_no_duplicate_fans(config)
     if err:
         connection.send_error(msg["id"], "duplicate_entity", err)
         return

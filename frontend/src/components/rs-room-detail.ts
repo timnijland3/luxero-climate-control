@@ -11,6 +11,7 @@ import type {
   DeviceConfig,
   DeviceType,
   DeviceRole,
+  FanConfig,
 } from "../types";
 import "./rs-hero-status";
 import "./rs-climate-mode-selector";
@@ -22,6 +23,7 @@ import "./rs-override-section";
 import "./rs-presence-section";
 import "./rs-covers-section";
 import "./rs-heat-source-section";
+import "./rs-quiet-time-section";
 import "../components/shared/rs-toggle-row";
 import "../components/shared/rs-toggle-card";
 import "../components/shared/rs-edit-dialog";
@@ -34,7 +36,14 @@ import type { RsOverrideSection } from "./rs-override-section";
 const CONTROL_DOCS_URL =
   "https://github.com/snazzybean/roommind/blob/main/docs/control-and-devices.md";
 
-type EditableSection = "schedule" | "devices" | "sensors" | "presence" | "covers" | "heatSource";
+type EditableSection =
+  | "schedule"
+  | "devices"
+  | "sensors"
+  | "presence"
+  | "covers"
+  | "heatSource"
+  | "quietTime";
 
 @customElement("rs-room-detail")
 export class RsRoomDetail extends LitElement {
@@ -89,6 +98,8 @@ export class RsRoomDetail extends LitElement {
   @state() private _heatSourcePrimaryDelta = 1.5;
   @state() private _heatSourceOutdoorThreshold = 5.0;
   @state() private _heatSourceAcMinOutdoor = -15.0;
+  @state() private _fans: FanConfig[] = [];
+  @state() private _quietScheduleEntity = "";
 
   private _prevAreaId: string | null = null;
   private _saveDebounce?: ReturnType<typeof setTimeout>;
@@ -283,6 +294,8 @@ export class RsRoomDetail extends LitElement {
       this._heatSourcePrimaryDelta = this.config.heat_source_primary_delta ?? 1.5;
       this._heatSourceOutdoorThreshold = this.config.heat_source_outdoor_threshold ?? 5.0;
       this._heatSourceAcMinOutdoor = this.config.heat_source_ac_min_outdoor ?? -15.0;
+      this._fans = this.config.fans ?? [];
+      this._quietScheduleEntity = this.config.quiet_schedule_entity ?? "";
     } else {
       this._devices = [];
       this._selectedTempSensor = "";
@@ -323,6 +336,8 @@ export class RsRoomDetail extends LitElement {
       this._heatSourcePrimaryDelta = 1.5;
       this._heatSourceOutdoorThreshold = 5.0;
       this._heatSourceAcMinOutdoor = -15.0;
+      this._fans = [];
+      this._quietScheduleEntity = "";
     }
     this._dirty = false;
 
@@ -578,6 +593,20 @@ export class RsRoomDetail extends LitElement {
                 ></rs-heat-source-section>
               </rs-section-card>`
             : nothing}
+
+          <rs-section-card
+            icon="mdi:fan"
+            .heading=${localize("room.section.quiet_time", this.hass.language)}
+            editable
+            @edit-click=${this._openEdit("quietTime")}
+          >
+            <rs-quiet-time-section
+              .hass=${this.hass}
+              .editing=${false}
+              .fans=${this._fans}
+              .quietScheduleEntity=${this._quietScheduleEntity}
+            ></rs-quiet-time-section>
+          </rs-section-card>
 
           <rs-toggle-card
             icon="mdi:tree"
@@ -844,6 +873,23 @@ export class RsRoomDetail extends LitElement {
             @setting-changed=${this._onHeatSourceSettingChanged}
           ></rs-heat-source-section>
         </rs-edit-dialog>`;
+      case "quietTime":
+        return html`<rs-edit-dialog
+          open
+          icon="mdi:fan"
+          .heading=${localize("room.section.quiet_time", lang)}
+          hasInfo
+          @rs-dialog-closed=${this._closeEdit}
+        >
+          <div slot="info">${localize("quiet_time.info_body", lang)}</div>
+          <rs-quiet-time-section
+            .hass=${this.hass}
+            .editing=${true}
+            .fans=${this._fans}
+            .quietScheduleEntity=${this._quietScheduleEntity}
+            @setting-changed=${this._onQuietTimeSettingChanged}
+          ></rs-quiet-time-section>
+        </rs-edit-dialog>`;
     }
   }
 
@@ -1016,6 +1062,16 @@ export class RsRoomDetail extends LitElement {
     this._autoSave();
   }
 
+  // ---- Quiet time ----
+
+  private _onQuietTimeSettingChanged(e: CustomEvent<{ key: string; value: unknown }>) {
+    const { key, value } = e.detail;
+    e.stopPropagation();
+    if (key === "fans") this._fans = value as FanConfig[];
+    else if (key === "quiet_schedule_entity") this._quietScheduleEntity = value as string;
+    this._autoSave();
+  }
+
   // ---- Outdoor toggle ----
 
   private _onClimateControlToggle(e: CustomEvent) {
@@ -1088,6 +1144,8 @@ export class RsRoomDetail extends LitElement {
         heat_source_primary_delta: this._heatSourcePrimaryDelta,
         heat_source_outdoor_threshold: this._heatSourceOutdoorThreshold,
         heat_source_ac_min_outdoor: this._heatSourceAcMinOutdoor,
+        fans: this._fans,
+        quiet_schedule_entity: this._quietScheduleEntity,
       });
 
       this._dirty = false;

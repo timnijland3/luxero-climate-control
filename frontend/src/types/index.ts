@@ -67,6 +67,11 @@ export interface DeviceConfig {
   setpoint_mode?: "proportional" | "direct"; // default "proportional"
 }
 
+export interface FanConfig {
+  entity_id: string;
+  quiet_max_percent: number;
+}
+
 export type ConflictResolution =
   | "heating_priority"
   | "cooling_priority"
@@ -134,6 +139,8 @@ export interface RoomConfig {
   heat_source_outdoor_threshold?: number;
   heat_source_ac_min_outdoor?: number;
   climate_control_enabled?: boolean;
+  fans?: FanConfig[];
+  quiet_schedule_entity?: string;
   live?: RoomLiveData;
 }
 

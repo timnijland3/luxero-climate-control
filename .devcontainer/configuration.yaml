@@ -1,4 +1,4 @@
-# Home Assistant Development Configuration for RoomMind
+# Home Assistant Development Configuration for Luxero Climate
 
 # Use individual components instead of default_config to avoid pulling in
 # go2rtc, stream, bluetooth, usb, and other integrations that require

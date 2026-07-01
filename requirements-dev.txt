@@ -1,4 +1,4 @@
-# Dev dependencies for RoomMind
+# Dev dependencies for Luxero Climate
 # Install: pip install -r requirements-dev.txt
 
 # Testing — pytest-homeassistant-custom-component pins exact versions

@@ -1,12 +1,12 @@
 name: 🐛 Bug Report
-description: Report a bug in RoomMind
+description: Report a bug in Luxero Climate
 labels: ["bug"]
 body:
   - type: input
     id: version
     attributes:
-      label: RoomMind version
-      description: Found in Settings → Devices & Services → RoomMind
+      label: Luxero Climate version
+      description: Found in Settings → Devices & Services → Luxero Climate
       placeholder: "1.6.0"
     validations:
       required: true
@@ -44,7 +44,7 @@ body:
       label: Diagnostics
       description: |
         Please download and attach the diagnostics file:
-        Settings → Devices & Services → RoomMind → ⋮ → Download diagnostics
+        Settings → Devices & Services → Luxero Climate → ⋮ → Download diagnostics
         This contains room config and system state (no credentials) and **significantly speeds up diagnosing and fixing the issue.**
       placeholder: "Drag & drop the diagnostics JSON file here, or paste its contents."
 

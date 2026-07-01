@@ -1,4 +1,4 @@
-# RoomMind
+# Luxero Climate
 
 [![HACS Default](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/hacs/integration)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.2%2B-blue.svg)](https://www.home-assistant.io/)
@@ -40,33 +40,33 @@
 
 ## Installation
 
-[![Open your Home Assistant instance and open RoomMind inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=snazzybean&repository=roommind&category=integration)
+[![Open your Home Assistant instance and open Luxero Climate inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=snazzybean&repository=roommind&category=integration)
 
 ### HACS (Recommended)
 
 1. Open HACS in Home Assistant
-2. Search for "RoomMind" and install
+2. Search for "Luxero Climate" and install
 3. Restart Home Assistant
-4. Go to **Settings > Devices & Services > Add Integration > RoomMind**
+4. Go to **Settings > Devices & Services > Add Integration > Luxero Climate**
 
 ### Manual
 
 1. Copy `custom_components/roommind/` to your `config/custom_components/` directory
 2. Restart Home Assistant
-3. Go to **Settings > Devices & Services > Add Integration > RoomMind**
+3. Go to **Settings > Devices & Services > Add Integration > Luxero Climate**
 
 ## Quick Start
 
-After installation, RoomMind appears as a panel in the HA sidebar.
+After installation, Luxero Climate appears as a panel in the HA sidebar.
 
-1. **Open RoomMind** from the sidebar - you'll see all your HA areas as room cards
+1. **Open Luxero Climate** from the sidebar - you'll see all your HA areas as room cards
 2. **Click a room card** to open the detail view
 3. **Add devices** - assign at least one thermostat or AC (`climate.*` entity)
 4. **Add a temperature sensor** (optional but recommended) - enables Full Control with proportional valve control
 5. **Add a schedule** - create a `schedule.*` helper in HA and assign it
 6. **Set temperatures** - configure comfort (schedule on) and eco (schedule off) temperatures
 
-RoomMind starts controlling immediately. If MPC is enabled (default), the thermal model begins learning in the background.
+Luxero Climate starts controlling immediately. If MPC is enabled (default), the thermal model begins learning in the background.
 
 ## Analytics
 
@@ -84,22 +84,22 @@ Manual Override > Vacation > Presence Away > Schedule Block > Comfort / Eco  (+M
 
 ### Full Control vs. Managed Mode
 
-An external temperature sensor is really where RoomMind starts to shine. It is the single most impactful addition for any room, unlocking the full potential of the thermal model, MPC optimization, and proportional device control.
+An external temperature sensor is really where Luxero Climate starts to shine. It is the single most impactful addition for any room, unlocking the full potential of the thermal model, MPC optimization, and proportional device control.
 
 | | Full Control | Managed Mode |
 |---|---|---|
 | **When** | External temperature sensor assigned | No external sensor |
-| **How** | RoomMind decides heating/cooling/idle | Device self-regulates |
+| **How** | Luxero Climate decides heating/cooling/idle | Device self-regulates |
 | **Setpoints** | Proportional boost (e.g. 28°C to force heating at 80% power) | Exact target sent to device |
 | **Thermal model** | EKF learns room behavior, MPC optimizes | No learning, no optimization |
 
-In **Full Control**, RoomMind dynamically calculates device setpoints based on MPC power output. Instead of sending 22°C to a TRV or AC, it might send 28°C to force the device to heat at full capacity. This solves common issues where devices with inaccurate internal sensors or built-in deadbands refuse to turn on. Each room shows its current mode ("Full Control" or "Managed") in the detail view.
+In **Full Control**, Luxero Climate dynamically calculates device setpoints based on MPC power output. Instead of sending 22°C to a TRV or AC, it might send 28°C to force the device to heat at full capacity. This solves common issues where devices with inaccurate internal sensors or built-in deadbands refuse to turn on. Each room shows its current mode ("Full Control" or "Managed") in the detail view.
 
 ### MPC Climate Control
 
 The Extended Kalman Filter observes temperature changes and learns each room's heat loss rate, heating/cooling power, and solar responsiveness. Once calibrated (prediction accuracy < 0.5 C), the MPC optimizer plans ahead and calculates proportional power for smoother control.
 
-Until calibrated (~60 idle + ~20 active samples), RoomMind falls back to simple on/off control with hysteresis.
+Until calibrated (~60 idle + ~20 active samples), Luxero Climate falls back to simple on/off control with hysteresis.
 
 For a more detailed explanation of the `Priority` slider, device types, setpoint modes, idle behavior, and smart source selection, see the [Control and Device Guide](docs/control-and-devices.md).
 

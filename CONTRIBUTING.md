@@ -1,4 +1,4 @@
-# Contributing to RoomMind
+# Contributing to Luxero Climate
 
 Thanks for your interest in contributing! Here's how to get started.
 

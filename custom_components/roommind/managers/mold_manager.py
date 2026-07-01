@@ -125,7 +125,7 @@ class MoldManager:
                             f"{current_humidity:.0f}% humidity, "
                             f"estimated surface RH {surface_rh:.0f}%"
                         ),
-                        title="RoomMind: Mold Risk Warning",
+                        title="Luxero Climate: Mold Risk Warning",
                         tag_suffix="risk",
                     )
                     self._throttler.record_sent(f"detect_{area_id}")
@@ -157,7 +157,7 @@ class MoldManager:
                                 f"temperature raised by "
                                 f"{celsius_delta_to_ha_fn(result.prevention_delta):.0f}{ha_temp_unit_str_fn()}"
                             ),
-                            title="RoomMind: Mold Prevention",
+                            title="Luxero Climate: Mold Prevention",
                             tag_suffix="prevention",
                         )
                         self._throttler.record_sent(

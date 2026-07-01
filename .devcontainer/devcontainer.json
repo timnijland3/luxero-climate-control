@@ -1,5 +1,5 @@
 {
-  "name": "RoomMind Development",
+  "name": "Luxero Climate Development",
   "image": "mcr.microsoft.com/devcontainers/python:3.14-bookworm",
   "forwardPorts": [8123],
   "portsAttributes": {

@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# RoomMind Devcontainer Setup Script
+# Luxero Climate Devcontainer Setup Script
 
 set -e
 
 WORKSPACE="/workspaces/roommind"
 
-echo "Setting up RoomMind development environment..."
+echo "Setting up Luxero Climate development environment..."
 
 # ---------------------------------------------------------------------------
 # System packages
@@ -149,7 +149,7 @@ echo "Custom components directory:"
 ls -la /config/custom_components/
 
 echo ""
-echo "RoomMind integration link:"
+echo "Luxero Climate integration link:"
 ls -la /config/custom_components/roommind
 
 echo ""

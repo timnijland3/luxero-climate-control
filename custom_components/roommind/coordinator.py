@@ -63,6 +63,7 @@ from .managers.cover_orchestrator import CoverOrchestrator, CoverResult
 from .managers.ekf_training_manager import EkfTrainingManager
 from .managers.heat_source_orchestrator import HeatSourcePlan, evaluate_heat_sources
 from .managers.mold_manager import MoldManager
+from .managers.quiet_time_manager import QuietTimeManager
 from .managers.residual_heat_tracker import ResidualHeatTracker
 from .managers.valve_manager import ValveManager
 from .managers.weather_manager import WeatherManager
@@ -113,6 +114,7 @@ class RoomMindCoordinator(DataUpdateCoordinator):
         self._outdoor_unavailable_cycles: int = 0
         self._outdoor_warning_sent: bool = False
         self._window_manager = WindowManager()
+        self._quiet_time_manager = QuietTimeManager()
         self._previous_modes: dict[str, str] = {}
         self._model_manager: RoomModelManager = RoomModelManager()
         self._model_loaded = False
@@ -450,7 +452,7 @@ class RoomMindCoordinator(DataUpdateCoordinator):
         sensor_id = settings.get("outdoor_temp_sensor") or "(not configured)"
         weather_eid = settings.get("weather_entity") or "(not configured)"
         message = (
-            "RoomMind cannot read an outdoor temperature. Thermal model "
+            "Luxero Climate cannot read an outdoor temperature. Thermal model "
             "learning is paused for all rooms until a valid source returns.\n\n"
             f"• Outdoor sensor: `{sensor_id}`\n"
             f"• Weather entity: `{weather_eid}`\n\n"
@@ -464,7 +466,7 @@ class RoomMindCoordinator(DataUpdateCoordinator):
         async_create_notification(
             self.hass,
             message,
-            title="RoomMind: outdoor temperature unavailable",
+            title="Luxero Climate: outdoor temperature unavailable",
             notification_id=OUTDOOR_UNAVAILABLE_NOTIFICATION_ID,
         )
         self._outdoor_warning_sent = True
@@ -497,6 +499,12 @@ class RoomMindCoordinator(DataUpdateCoordinator):
         area_id = room.get("area_id", "unknown")
 
         current_temp, current_temp_raw, current_humidity, has_external_sensor = self._read_room_sensors(room, area_id)
+
+        # --- Quiet time fan cap: runs every cycle regardless of climate state ---
+        try:
+            await self._quiet_time_manager.async_apply(self.hass, room, area_id)
+        except Exception:  # noqa: BLE001
+            _LOGGER.warning("Area '%s': quiet-time fan cap failed", area_id, exc_info=True)
 
         # --- Outdoor room: skip all control logic ---
         if room.get("is_outdoor", False):

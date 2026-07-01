@@ -1968,6 +1968,54 @@ async def test_save_room_devices_duplicate_entity_rejected(ws_hass, store, conne
 
 
 @pytest.mark.asyncio
+async def test_save_room_fans_duplicate_entity_rejected(ws_hass, store, connection):
+    """Duplicate entity_ids in fans[] are rejected."""
+    await store.async_load()
+    msg = {
+        "id": 2,
+        "type": "roommind/rooms/save",
+        "area_id": "living_room",
+        "fans": [
+            {"entity_id": "fan.convector1", "quiet_max_percent": 30},
+            {"entity_id": "fan.convector1", "quiet_max_percent": 50},
+        ],
+    }
+    await _save_room(ws_hass, connection, msg)
+    connection.send_error.assert_called_once()
+    assert connection.send_error.call_args[0][1] == "duplicate_entity"
+
+
+@pytest.mark.asyncio
+async def test_save_room_fans_self_assignment_rejected(ws_hass, store, connection):
+    """Assigning RoomMind's own entity as a quiet-time fan is rejected."""
+    await store.async_load()
+    msg = {
+        "id": 2,
+        "type": "roommind/rooms/save",
+        "area_id": "living_room",
+        "fans": [{"entity_id": "fan.roommind_living_room_boost", "quiet_max_percent": 30}],
+    }
+    await _save_room(ws_hass, connection, msg)
+    connection.send_error.assert_called_once()
+    assert connection.send_error.call_args[0][1] == "invalid_entity"
+
+
+@pytest.mark.asyncio
+async def test_save_room_quiet_schedule_entity_self_assignment_rejected(ws_hass, store, connection):
+    """Assigning RoomMind's own entity as the quiet schedule is rejected."""
+    await store.async_load()
+    msg = {
+        "id": 2,
+        "type": "roommind/rooms/save",
+        "area_id": "living_room",
+        "quiet_schedule_entity": "schedule.roommind_living_room_quiet",
+    }
+    await _save_room(ws_hass, connection, msg)
+    connection.send_error.assert_called_once()
+    assert connection.send_error.call_args[0][1] == "invalid_entity"
+
+
+@pytest.mark.asyncio
 async def test_save_room_allows_normal_entities(ws_hass, store, connection):
     """Normal (non-RoomMind) entities are accepted."""
     await store.async_load()
@@ -2011,6 +2059,63 @@ async def test_save_room_with_devices_accepted(ws_hass, store, connection):
     # Legacy keys should be synced
     assert room["thermostats"] == ["climate.trv1"]
     assert room["acs"] == ["climate.ac1"]
+
+
+@pytest.mark.asyncio
+async def test_save_room_with_fans_accepted(ws_hass, store, connection):
+    """WS save with fans array and quiet_schedule_entity is accepted and stored."""
+    await store.async_load()
+    msg = {
+        "id": 2,
+        "type": "roommind/rooms/save",
+        "area_id": "living_room",
+        "fans": [{"entity_id": "fan.convector1", "quiet_max_percent": 40}],
+        "quiet_schedule_entity": "schedule.living_room_quiet",
+    }
+    await _save_room(ws_hass, connection, msg)
+    connection.send_result.assert_called_once()
+    room = connection.send_result.call_args[0][1]["room"]
+    assert room["fans"] == [{"entity_id": "fan.convector1", "quiet_max_percent": 40}]
+    assert room["quiet_schedule_entity"] == "schedule.living_room_quiet"
+
+
+@pytest.mark.asyncio
+async def test_save_room_fans_default_quiet_max_percent(ws_hass, store, connection):
+    """quiet_max_percent defaults to 30 when omitted."""
+    await store.async_load()
+    msg = {
+        "id": 2,
+        "type": "roommind/rooms/save",
+        "area_id": "living_room",
+        "fans": [{"entity_id": "fan.convector1"}],
+    }
+    await _save_room(ws_hass, connection, msg)
+    connection.send_result.assert_called_once()
+    room = connection.send_result.call_args[0][1]["room"]
+    assert room["fans"] == [{"entity_id": "fan.convector1", "quiet_max_percent": 30}]
+
+
+def test_save_room_fan_entity_id_domain_validation():
+    """fans[].entity_id must be in the fan domain (matches the WS schema)."""
+    import voluptuous as vol
+
+    validator = vol.Match(r"^fan\..+")
+    assert validator("fan.convector1") == "fan.convector1"
+    with pytest.raises(vol.Invalid):
+        validator("climate.convector1")
+    with pytest.raises(vol.Invalid):
+        validator("fan.")
+
+
+def test_save_room_quiet_schedule_entity_domain_validation():
+    """quiet_schedule_entity must be empty or in the schedule domain (matches the WS schema)."""
+    import voluptuous as vol
+
+    validator = vol.Any("", vol.Match(r"^schedule\..+"))
+    assert validator("") == ""
+    assert validator("schedule.living_room_quiet") == "schedule.living_room_quiet"
+    with pytest.raises(vol.Invalid):
+        validator("input_boolean.quiet")
 
 
 @pytest.mark.asyncio

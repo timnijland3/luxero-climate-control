@@ -2,12 +2,12 @@
   "config": {
     "step": {
       "user": {
-        "title": "RoomMind",
-        "description": "RoomMind für die Raumklimasteuerung einrichten. Räume werden nach dem Setup im RoomMind-Panel konfiguriert."
+        "title": "Luxero Climate",
+        "description": "Luxero Climate für die Raumklimasteuerung einrichten. Räume werden nach dem Setup im Luxero Climate-Panel konfiguriert."
       }
     },
     "abort": {
-      "already_configured": "RoomMind ist bereits konfiguriert."
+      "already_configured": "Luxero Climate ist bereits konfiguriert."
     }
   },
   "issues": {
@@ -17,7 +17,7 @@
         "step": {
           "confirm_restart": {
             "title": "Home Assistant neu starten?",
-            "description": "RoomMind {version} wurde installiert, aber Home Assistant läuft noch mit einer älteren Version. Neustart zum Abschließen des Updates."
+            "description": "Luxero Climate {version} wurde installiert, aber Home Assistant läuft noch mit einer älteren Version. Neustart zum Abschließen des Updates."
           }
         }
       }

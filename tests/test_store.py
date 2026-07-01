@@ -27,6 +27,8 @@ async def test_save_room_creates_new(store):
     assert room["comfort_temp"] == DEFAULT_COMFORT_TEMP
     assert room["eco_temp"] == DEFAULT_ECO_TEMP
     assert room["climate_control_enabled"] is True
+    assert room["fans"] == []
+    assert room["quiet_schedule_entity"] == ""
 
 
 @pytest.mark.asyncio
@@ -301,6 +303,30 @@ async def test_migrate_room_temps_adds_split_fields(store):
     assert room["comfort_cool"] == DEFAULT_COMFORT_COOL  # 24.0
     assert room["eco_heat"] == 18.0
     assert room["eco_cool"] == DEFAULT_ECO_COOL  # 27.0
+
+
+@pytest.mark.asyncio
+async def test_migrate_room_adds_quiet_time_defaults(store):
+    """Room saved before the quiet-time feature existed gets defaults on read."""
+    stored_data = {
+        "rooms": {
+            "wohnzimmer": {
+                "area_id": "wohnzimmer",
+                "comfort_temp": 22.0,
+                "eco_temp": 18.0,
+                "thermostats": [],
+                "acs": [],
+                "schedules": [],
+            }
+        }
+    }
+    store._store.async_load = AsyncMock(return_value=stored_data)
+    await store.async_load()
+
+    room = store.get_room("wohnzimmer")
+    assert room is not None
+    assert room["fans"] == []
+    assert room["quiet_schedule_entity"] == ""
 
 
 @pytest.mark.asyncio
